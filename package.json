@@ -10,7 +10,7 @@
     "cross-env": "^5.2.0",
     "electron-is-dev": "^1.0.1",
     "fs": "0.0.1-security",
-    "minecraft-launcher-core": "^1.0.5",
+    "minecraft-launcher-core": "^1.2.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.3"
