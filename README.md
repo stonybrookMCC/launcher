@@ -1,2 +1,2 @@
 # launcher
-Really simple electon minecraft launcher for Minecraft
+Really simple electron minecraft launcher for Minecraft
