@@ -1,0 +1,75 @@
+@font-face {
+  font-family: Myriad;
+  src: url(https://raw.githack.com/mattboldt/css-apple-nav/master/fonts/Myriad.ttf);
+}
+
+.App {
+  text-align: center;
+}
+
+.App > img {
+  margin-top: 100px;
+  margin-bottom: 15px;
+}
+
+#title {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+input {
+  padding-left: 10px;
+  margin: 0 auto;
+  border: 1px solid #dfe1e5;
+  border-radius: 24px;
+  box-shadow: none;
+  width: 60%;
+  height: 44px;
+}
+
+input:focus, button {
+  outline: none;
+}
+
+button {
+  background-color: rgba(143, 209, 105, 1);
+  margin-top: 50px;
+  padding-left: 10px;
+  border: 1px solid rgba(143, 209, 105, 1);
+  border-radius: 24px;
+  width: 40%;
+  height: 44px;
+  transition: background-color .5s, border .5s;
+}
+
+button:hover {
+  background-color: #97e96a;
+  border: 1px solid #97e96a;
+}
+
+/*Overlay thing from w3schools*/
+#loader {
+  background-color: #e8eef7;
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+#loader > div {
+  font-family: Myriad, serif;
+  color: black;
+  font-size: 25px;
+  height: 90%;
+  width: 100%;
+  display: flex;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+}
