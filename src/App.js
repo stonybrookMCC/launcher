@@ -5,11 +5,16 @@ import './App.css';
 const electron = window.require('electron');
 const ipcRenderer  = electron.ipcRenderer;
 
-ipcRenderer.on('exit', function() {new App().toggle()});
+
+ipcRenderer.on('log', function (event, arg) {
+    console.log(String.fromCharCode.apply(null, arg) || arg);
+});
+
 ipcRenderer.on('user-catch', function (event, arg) {
     if(!arg.auth) return;
-    document.getElementById("user").value = arg.auth.name;
-    document.getElementById("user").disabled = true;
+    document.getElementById("user").style.display = "none";
+    document.getElementById("title").style.marginTop = "20px"
+    document.getElementById("title").innerText = `Logged in as: ${arg.auth.name}`;
 });
 
 let toggled = false;

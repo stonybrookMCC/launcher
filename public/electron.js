@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain} = require('electron');
+const {app, BrowserWindow, ipcMain, globalShortcut} = require('electron');
 const launcher = require('minecraft-launcher-core');
 const path = require('path');
 const isDev = require('electron-is-dev');
@@ -10,6 +10,7 @@ let launched = false;
 
 const root = `${os.homedir()}/AppData/Roaming/.sbmcc`;
 const userSettings = path.join(root, "settings.json");
+
 
 if(!fs.existsSync(root)) fs.mkdirSync(root);
 if(!fs.existsSync(userSettings)) {
@@ -39,7 +40,8 @@ function createWindow() {
 
     mainWindow.on('closed', () => mainWindow = null);
 
-    launcher.event.on('data', () => {
+    launcher.event.on('data', (data) => {
+        mainWindow.webContents.send('log', data);
         if(!launched) {
             launched = true;
             mainWindow.hide()
@@ -48,11 +50,15 @@ function createWindow() {
 
     launcher.event.on('close', (code) => {
         launched = false;
-        mainWindow.webContents.send('exit', code);
+        globalShortcut.unregisterAll();
         app.quit();
     });
 
     mainWindow.webContents.on('did-finish-load', () => mainWindow.show());
+
+    globalShortcut.register('CommandOrControl+N', () => {
+        mainWindow.webContents.openDevTools();
+    });
 }
 
 app.on('ready', createWindow);
@@ -61,6 +67,7 @@ launcher.event.on('error', (error) => console.error(error));
 
 launcher.event.on('package-extract', () => {
     const settings = getSettings();
+
     settings.packagePath = null;
     fs.writeFileSync(userSettings, JSON.stringify(settings));
 });
@@ -95,6 +102,8 @@ ipcMain.on('launch', async (event, arg) => {
             max: "500"
         }
     };
+
+    mainWindow.webContents.send('log', options);
 
     launcher.core(options);
 });
