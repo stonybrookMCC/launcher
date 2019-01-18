@@ -58,7 +58,9 @@ class App extends Component {
                   <div id="title">Please type your username</div>
                   {App.getUser()}
                   <input id="user" />
-                  <button id="changeUsername" onClick={App.updateUser}>Change Username</button>
+                  <div>
+                      <button id="changeUsername" onClick={App.updateUser}>Change Username</button>
+                  </div>
                   <div>
                       <button id="login" onClick={App.processLogin}>Login</button>
                   </div>
