@@ -13,22 +13,14 @@ ipcRenderer.on('log', function (event, arg) {
 ipcRenderer.on('user-catch', function (event, arg) {
     if(!arg.auth) return;
     document.getElementById("user").style.display = "none";
-    document.getElementById("title").style.marginTop = "20px"
+    document.getElementById("title").style.marginTop = "20px";
     document.getElementById("title").innerText = `Logged in as: ${arg.auth.name}`;
 });
 
 let toggled = false;
 
 class App extends Component {
-    constructor(props) {
-        super(props);
-
-        this.toggle = this.toggle.bind(this);
-        this.processLogin = this.processLogin.bind(this);
-        this.getUser = this.getUser.bind(this);
-    }
-
-    toggle() {
+    static toggle() {
         if(!toggled) {
             toggled = true;
             document.getElementById("loader").style.display = "block";
@@ -38,13 +30,19 @@ class App extends Component {
         }
     }
 
-    processLogin() {
-        this.toggle();
+    static processLogin() {
+        App.toggle();
         ipcRenderer.send('launch', document.getElementById('user').value);
     }
 
-    getUser() {
+    static getUser() {
         ipcRenderer.send('user-throw', null);
+    }
+
+    static updateUser () {
+        document.getElementById("user").style.display = "block";
+        document.getElementById("title").style.marginTop = "0px";
+        document.getElementById("title").innerText = "Please type your new username";
     }
 
     render() {
@@ -58,10 +56,11 @@ class App extends Component {
               <img src={logo}/>
               <div className="login">
                   <div id="title">Please type your username</div>
-                  {this.getUser()}
+                  {App.getUser()}
                   <input id="user" />
+                  <button id="changeUsername" onClick={App.updateUser}>Change Username</button>
                   <div>
-                      <button onClick={this.processLogin}>Login</button>
+                      <button id="login" onClick={App.processLogin}>Login</button>
                   </div>
               </div>
           </div>

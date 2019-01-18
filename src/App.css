@@ -31,7 +31,7 @@ input:focus, button {
   outline: none;
 }
 
-button {
+#login {
   background-color: rgba(143, 209, 105, 1);
   margin-top: 50px;
   padding-left: 10px;
@@ -42,11 +42,16 @@ button {
   transition: background-color .5s, border .5s;
 }
 
-button:hover {
+#login:hover {
   background-color: #97e96a;
   border: 1px solid #97e96a;
 }
 
+#changeUsername {
+  border: 0 solid;
+  background-color: transparent;
+  opacity: .5;
+}
 
 /*Overlay thing from w3schools*/
 #loader {

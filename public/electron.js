@@ -83,6 +83,10 @@ ipcMain.on('launch', async (event, arg) => {
     let settings = getSettings();
     if(settings.auth) {
         auth = settings.auth;
+        if(auth.name !== arg) {
+            auth.name = arg;
+            fs.writeFileSync(userSettings, JSON.stringify(settings));
+        }
     } else {
         auth = await launcher.authenticator.getAuth(arg);
         settings.auth = auth;
