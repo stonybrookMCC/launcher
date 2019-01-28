@@ -12,7 +12,10 @@ ipcRenderer.on('log', function (event, arg) {
 
 ipcRenderer.on('user-catch', function (event, arg) {
     if(!arg.auth) return;
+    // TODO: Not make this hacky!
     document.getElementById("user").style.display = "none";
+    document.getElementById("user").value = arg.auth.name;
+
     document.getElementById("title").style.marginTop = "20px";
     document.getElementById("title").innerText = `Logged in as: ${arg.auth.name}`;
 });
