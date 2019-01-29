@@ -48,6 +48,10 @@ function createWindow() {
         }
     });
 
+    launcher.event.on('download-status', (data) => {
+        mainWindow.webContents.send('download-status', data);
+    });
+
     launcher.event.on('close', (code) => {
         launched = false;
         globalShortcut.unregisterAll();

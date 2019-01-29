@@ -10,6 +10,10 @@ ipcRenderer.on('log', function (event, arg) {
     console.log(String.fromCharCode.apply(null, arg) || arg);
 });
 
+ipcRenderer.on('download-status', function(event, arg) {
+    document.getElementById("loading-bar").innerText = `${arg.current}/${arg.total} MB`;
+});
+
 ipcRenderer.on('user-catch', function (event, arg) {
     if(!arg.auth) return;
     // TODO: Not make this hacky!
@@ -54,6 +58,7 @@ class App extends Component {
               <div id="loader">
                   <div>
                       Building Client...
+                      <div id="loading-bar"></div>
                   </div>
               </div>
               <img src={logo}/>

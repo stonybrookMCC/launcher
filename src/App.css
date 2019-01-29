@@ -79,3 +79,11 @@ input:focus, button {
   align-items: center;
   justify-content: center;
 }
+
+#loader > div > div {
+  height: 10%;
+  width: 100%;
+  position: absolute; 
+  bottom: 0;
+  color: gray;
+}

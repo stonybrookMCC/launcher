@@ -1,7 +1,7 @@
 {
   "name": "minecraft-launcher",
   "author": "Pierce Ferlin",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "private": true,
   "main": "public/electron.js",
   "homepage": "./",
@@ -10,7 +10,7 @@
     "cross-env": "^5.2.0",
     "electron-is-dev": "^1.0.1",
     "fs": "0.0.1-security",
-    "minecraft-launcher-core": "^1.2.0",
+    "minecraft-launcher-core": "^1.2.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-scripts": "2.1.3"
