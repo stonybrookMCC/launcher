@@ -11,7 +11,7 @@ ipcRenderer.on('log', function (event, arg) {
 });
 
 ipcRenderer.on('download-status', function(event, arg) {
-    document.getElementById("loading-bar").innerText = `${arg.current}/${arg.total} MB`;
+    document.getElementById("loading-bar").innerText = `${arg.current}/${arg.total} KB`;
 });
 
 ipcRenderer.on('user-catch', function (event, arg) {
@@ -23,6 +23,12 @@ ipcRenderer.on('user-catch', function (event, arg) {
     document.getElementById("title").style.marginTop = "20px";
     document.getElementById("title").innerText = `Logged in as: ${arg.auth.name}`;
 });
+
+document.onkeyup = (e) => {
+    if(e.ctrlKey && e.shiftKey && e.which == 77) {
+        document.getElementById("lock").style.display = "none";
+    }
+};
 
 let toggled = false;
 
@@ -55,10 +61,15 @@ class App extends Component {
     render() {
         return (
           <div className="App">
+              <div id="lock">
+                  <div>
+                      Sorry, but this is only for Minecraft Club!
+                  </div>
+              </div>
               <div id="loader">
                   <div>
                       Building Client...
-                      <div id="loading-bar"></div>
+                      <div id="loading-bar">Checking Files</div>
                   </div>
               </div>
               <img src={logo}/>
