@@ -16,8 +16,11 @@ if(!fs.existsSync(root)) fs.mkdirSync(root);
 if(!fs.existsSync(userSettings)) {
     fs.writeFileSync(userSettings, JSON.stringify({
         packagePath: "https://www.dropbox.com/s/l97trmdw7ypwbgv/clientPackage.zip?dl=1",
-        auth: null
-    }));
+        auth: null,
+        memory: {
+            max: "1024"
+        }
+    }, null, 4));
 }
 
 function getSettings() {
@@ -73,7 +76,7 @@ launcher.event.on('package-extract', () => {
     const settings = getSettings();
 
     settings.packagePath = null;
-    fs.writeFileSync(userSettings, JSON.stringify(settings));
+    fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
 });
 
 app.on('window-all-closed', () => app.quit());
@@ -89,12 +92,12 @@ ipcMain.on('launch', async (event, arg) => {
         auth = settings.auth;
         if(auth.name !== arg) {
             auth.name = arg;
-            fs.writeFileSync(userSettings, JSON.stringify(settings));
+            fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
         }
     } else {
         auth = await launcher.authenticator.getAuth(arg);
         settings.auth = auth;
-        fs.writeFileSync(userSettings, JSON.stringify(settings));
+        fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
     }
 
     const options = {
@@ -107,7 +110,7 @@ ipcMain.on('launch', async (event, arg) => {
             type: "release"
         },
         memory: {
-            max: "500"
+            max: settings.memory.max
         }
     };
 
