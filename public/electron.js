@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, globalShortcut} = require('electron');
+const {app, BrowserWindow, ipcMain, globalShortcut, dialog} = require('electron');
 const {autoUpdater} = require('electron-updater');
 const launcher = require('minecraft-launcher-core');
 const path = require('path');
@@ -11,7 +11,6 @@ let launched = false;
 
 const root = `${os.homedir()}/AppData/Roaming/.sbmcc`;
 const userSettings = path.join(root, "settings.json");
-
 
 if(!fs.existsSync(root)) fs.mkdirSync(root);
 if(!fs.existsSync(userSettings)) {
@@ -74,8 +73,21 @@ app.on('ready', () => {
     autoUpdater.checkForUpdates();
 });
 
-autoUpdater.on('update-downloaded', (info) => {
-    autoUpdater.quitAndInstall();
+autoUpdater.on('update-downloaded', () => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'New Update',
+        message: 'Found updates, do you want update now?',
+        buttons: ['Yes', 'No']
+    }, (buttonIndex) => {
+        if (buttonIndex === 0) {
+            autoUpdater.quitAndInstall();
+        }
+        else {
+            updater.enabled = true;
+            updater = null
+        }
+    })
 });
 
 launcher.event.on('error', (error) => console.error(error));
