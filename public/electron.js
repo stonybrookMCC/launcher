@@ -1,4 +1,5 @@
 const {app, BrowserWindow, ipcMain, globalShortcut} = require('electron');
+const {autoUpdater} = require('electron-updater');
 const launcher = require('minecraft-launcher-core');
 const path = require('path');
 const isDev = require('electron-is-dev');
@@ -68,7 +69,14 @@ function createWindow() {
     });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+    createWindow();
+    autoUpdater.checkForUpdates();
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+    autoUpdater.quitAndInstall();
+});
 
 launcher.event.on('error', (error) => console.error(error));
 
