@@ -15,13 +15,14 @@ ipcRenderer.on('download-status', function(event, arg) {
 });
 
 ipcRenderer.on('user-catch', function (event, arg) {
-    if(!arg.auth) return;
+    console.log(arg)
+    if(!arg.authorization) return;
     // TODO: Not make this hacky!
     document.getElementById("user").style.display = "none";
-    document.getElementById("user").value = arg.auth.name;
+    document.getElementById("user").value = arg.authorization.name;
 
     document.getElementById("title").style.marginTop = "20px";
-    document.getElementById("title").innerText = `Logged in as: ${arg.auth.name}`;
+    document.getElementById("title").innerText = `Logged in as: ${arg.authorization.name}`;
 });
 
 document.onkeyup = (e) => {

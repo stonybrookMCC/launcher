@@ -5,6 +5,7 @@ const path = require('path');
 const isDev = require('electron-is-dev');
 const fs = require('fs');
 const os = require('os');
+const request = require('request');
 
 let mainWindow;
 let launched = false;
@@ -15,16 +16,49 @@ const userSettings = path.join(root, "settings.json");
 if(!fs.existsSync(root)) fs.mkdirSync(root);
 if(!fs.existsSync(userSettings)) {
     fs.writeFileSync(userSettings, JSON.stringify({
-        packagePath: "https://www.dropbox.com/s/l97trmdw7ypwbgv/clientPackage.zip?dl=1",
-        auth: null,
+        clientPackage: "https://www.dropbox.com/s/l97trmdw7ypwbgv/clientPackage.zip?dl=1",
+        packageInfo: {
+            version: 1,
+            installed: false
+        },
+        version: {
+            number: "1.12.2",
+            type: "release"
+        },
+        authorization: null,
         memory: {
-            max: "1024"
+            max: "500",
+            min: "100",
+            override: false
+        },
+        endpoints: {
+            gist: "https://napstabot.club/launcher.json",
+            error: "https://discordapp.com/api/webhooks/558094269160882196/v5LiNUHlQJzmKt0voeDcgCP4BhBEZpDQOuicJ712p3fZa83_ORpGLo4qVjDomT3iYNMg"
         }
     }, null, 4));
 }
 
 function getSettings() {
-    return(require(userSettings))
+    return new Promise(resolve => {
+        const settings = require(userSettings);
+       
+        request(settings.endpoints.gist, function(error, response, body) {
+            if(error || response.statusCode !== 200) resolve(globalSettings);
+            const options = JSON.parse(body);
+
+            options.authorization = settings.authorization
+
+            if(settings.packageInfo.version !== options.packageInfo.version) {
+                console.log("Launching with package")
+            } else options.clientPackage = null;
+
+            resolve({
+                ...options,
+                root: root,
+                os: 'windows'
+            });
+        });
+    })
 }
 
 function createWindow() {
@@ -70,7 +104,7 @@ function createWindow() {
 
 app.on('ready', () => {
     createWindow();
-    autoUpdater.checkForUpdates();
+    // autoUpdater.checkForUpdates();
 });
 
 autoUpdater.on('update-downloaded', () => {
@@ -90,51 +124,45 @@ autoUpdater.on('update-downloaded', () => {
     })
 });
 
-launcher.event.on('error', (error) => console.error(error));
+launcher.event.on('error', async (error) => {
+    const settings = await getSettings();
+    request({url:settings.endpoints.error, method:"POST", json: {
+        "embeds": [{
+          "title": settings.authorization.name,
+          "description": error
+        }]
+    }})
+});
 
-launcher.event.on('package-extract', () => {
-    const settings = getSettings();
+launcher.event.on('package-extract', async () => {
+    const settings = await getSettings();
 
-    settings.packagePath = null;
+    settings.clientPackage = null;
     fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
 });
 
 app.on('window-all-closed', () => app.quit());
 
 ipcMain.on('user-throw', async(event, arg) => {
-    event.sender.send('user-catch', getSettings());
+    event.sender.send('user-catch', await getSettings());
 });
 
 ipcMain.on('launch', async (event, arg) => {
-    let auth;
-    let settings = getSettings();
-    if(settings.auth) {
-        auth = settings.auth;
-        if(auth.name !== arg) {
-            auth.name = arg;
+    let authorization;
+    let settings = await getSettings();
+    if(settings.authorization) {
+        authorization = settings.authorization;
+        if(authorization.name !== arg) {
+            authorization.name = arg;
             fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
         }
     } else {
-        auth = await launcher.authenticator.getAuth(arg);
-        settings.auth = auth;
+        authorization = await launcher.authenticator.getAuth(arg);
+        settings.authorization = authorization;
         fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
     }
 
-    const options = {
-        authorization: auth,
-        clientPackage: settings.packagePath,
-        root: root,
-        os: "windows",
-        version: {
-            number: "1.12.2",
-            type: "release"
-        },
-        memory: {
-            max: settings.memory.max
-        }
-    };
+    mainWindow.webContents.send('log', settings);
 
-    mainWindow.webContents.send('log', options);
-
-    launcher.core(options);
+    launcher.core(settings);
 });
