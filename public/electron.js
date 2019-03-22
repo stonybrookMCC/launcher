@@ -10,7 +10,7 @@ const request = require('request');
 let mainWindow;
 let launched = false;
 
-const root = `${os.homedir()}/AppData/Roaming/.sbmcc`;
+const root = `${os.homedir()}\\AppData\\Roaming\\.sbmcc`;
 const userSettings = path.join(root, "settings.json");
 
 if(!fs.existsSync(root)) fs.mkdirSync(root);
@@ -40,17 +40,18 @@ if(!fs.existsSync(userSettings)) {
 
 function getSettings() {
     return new Promise(resolve => {
-        const settings = require(userSettings);
+        const settings = JSON.parse(fs.readFileSync(userSettings, {encoding:"utf-8"}));
        
         request(settings.endpoints.gist, function(error, response, body) {
-            if(error || response.statusCode !== 200) resolve(globalSettings);
+            if(error || response.statusCode !== 200) resolve(settings);
             const options = JSON.parse(body);
 
-            options.authorization = settings.authorization
+            options.authorization = settings.authorization;
+            options.packageInfo.installed = settings.packageInfo.installed;
+            options.memory.override = settings.memory.override;
 
-            if(settings.packageInfo.version !== options.packageInfo.version) {
-                console.log("Launching with package")
-            } else options.clientPackage = null;
+            if(settings.packageInfo.version !== options.packageInfo.version) options.packageInfo.installed = false;
+            if(options.memory.override) options.memory = settings.memory;
 
             resolve({
                 ...options,
@@ -59,6 +60,16 @@ function getSettings() {
             });
         });
     })
+}
+
+async function sendErrorReport(error) {
+    const settings = JSON.parse(fs.readFileSync(userSettings, {encoding:"utf-8"}));
+    request.post({url:settings.endpoints.error, json: {
+        "embeds": [{
+            "title": `Username is ${settings.authorization.name} - Max memory is ${settings.memory.max}mb - Override set to ${settings.memory.override}`,
+            "description": String.fromCharCode.apply(null, error)
+        }]
+    }});
 }
 
 function createWindow() {
@@ -92,7 +103,7 @@ function createWindow() {
     launcher.event.on('close', (code) => {
         launched = false;
         globalShortcut.unregisterAll();
-        app.quit();
+        setTimeout(function() {app.quit()}, 2000);
     });
 
     mainWindow.webContents.on('did-finish-load', () => mainWindow.show());
@@ -124,20 +135,12 @@ autoUpdater.on('update-downloaded', () => {
     })
 });
 
-launcher.event.on('error', async (error) => {
-    const settings = await getSettings();
-    request({url:settings.endpoints.error, method:"POST", json: {
-        "embeds": [{
-          "title": settings.authorization.name,
-          "description": error
-        }]
-    }})
-});
+launcher.event.on('error', async (error) => await sendErrorReport(error));
 
 launcher.event.on('package-extract', async () => {
-    const settings = await getSettings();
+    const settings = JSON.parse(fs.readFileSync(userSettings, {encoding:"utf-8"}));
 
-    settings.clientPackage = null;
+    settings.packageInfo.installed = true;
     fs.writeFileSync(userSettings, JSON.stringify(settings, null, 4));
 });
 
@@ -163,6 +166,8 @@ ipcMain.on('launch', async (event, arg) => {
     }
 
     mainWindow.webContents.send('log', settings);
+
+    if(settings.packageInfo.installed) settings.clientPackage = null;
 
     launcher.core(settings);
 });
