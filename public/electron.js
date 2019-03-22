@@ -13,39 +13,53 @@ let launched = false;
 const root = `${os.homedir()}\\AppData\\Roaming\\.sbmcc`;
 const userSettings = path.join(root, "settings.json");
 
+const defaultSettings = {
+    clientPackage: "https://www.dropbox.com/s/l97trmdw7ypwbgv/clientPackage.zip?dl=1",
+    packageInfo: {
+        version: 1,
+        installed: false
+    },
+    version: {
+        number: "1.12.2",
+        type: "release"
+    },
+    launcher_version: "1.5.0",
+    authorization: null,
+    memory: {
+        max: "500",
+        min: "100",
+        override: false
+    },
+    endpoints: {
+        gist: "https://napstabot.club/launcher.json",
+        error: "https://discordapp.com/api/webhooks/558094269160882196/v5LiNUHlQJzmKt0voeDcgCP4BhBEZpDQOuicJ712p3fZa83_ORpGLo4qVjDomT3iYNMg"
+    }
+};
+
 if(!fs.existsSync(root)) fs.mkdirSync(root);
 if(!fs.existsSync(userSettings)) {
-    fs.writeFileSync(userSettings, JSON.stringify({
-        clientPackage: "https://www.dropbox.com/s/l97trmdw7ypwbgv/clientPackage.zip?dl=1",
-        packageInfo: {
-            version: 1,
-            installed: false
-        },
-        version: {
-            number: "1.12.2",
-            type: "release"
-        },
-        authorization: null,
-        memory: {
-            max: "500",
-            min: "100",
-            override: false
-        },
-        endpoints: {
-            gist: "https://napstabot.club/launcher.json",
-            error: "https://discordapp.com/api/webhooks/558094269160882196/v5LiNUHlQJzmKt0voeDcgCP4BhBEZpDQOuicJ712p3fZa83_ORpGLo4qVjDomT3iYNMg"
-        }
-    }, null, 4));
+    fs.writeFileSync(userSettings, JSON.stringify(defaultSettings, null, 4));
 }
 
 function getSettings() {
     return new Promise(resolve => {
-        const settings = JSON.parse(fs.readFileSync(userSettings, {encoding:"utf-8"}));
-       
+        let settings = JSON.parse(fs.readFileSync(userSettings, {encoding:"utf-8"}));
+
+        if(!settings.launcher_version) {
+            let newConfig = defaultSettings;
+
+            newConfig.authorization = settings.auth;
+            if(settings.packagePath === null) newConfig.packageInfo.installed = true;
+
+            fs.writeFileSync(userSettings, JSON.stringify(newConfig, null, 4));
+            settings = newConfig;
+        }
+
         request(settings.endpoints.gist, function(error, response, body) {
             if(error || response.statusCode !== 200) resolve(settings);
             const options = JSON.parse(body);
 
+            options.launcher_version = settings.launcher_version;
             options.authorization = settings.authorization;
             options.packageInfo.installed = settings.packageInfo.installed;
             options.memory.override = settings.memory.override;
@@ -64,6 +78,9 @@ function getSettings() {
 
 async function sendErrorReport(error) {
     const settings = JSON.parse(fs.readFileSync(userSettings, {encoding:"utf-8"}));
+
+    if(String.fromCharCode.apply(null, error).includes("future release")) return;
+
     request.post({url:settings.endpoints.error, json: {
         "embeds": [{
             "title": `Username is ${settings.authorization.name} - Max memory is ${settings.memory.max}mb - Override set to ${settings.memory.override}`,

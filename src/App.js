@@ -15,7 +15,8 @@ ipcRenderer.on('download-status', function(event, arg) {
 });
 
 ipcRenderer.on('user-catch', function (event, arg) {
-    console.log(arg)
+    document.getElementById("build-number").innerText = `v${arg.launcher_version}`;
+
     if(!arg.authorization) return;
     // TODO: Not make this hacky!
     document.getElementById("user").style.display = "none";
@@ -84,6 +85,7 @@ class App extends Component {
                   <div>
                       <button id="login" onClick={App.processLogin}>Login</button>
                   </div>
+                  <div id="build-number"></div>
               </div>
           </div>
         )

@@ -99,3 +99,8 @@ input:focus, button {
   bottom: 0;
   color: gray;
 }
+
+#build-number {
+  margin-top: 15px;
+  color: gray;
+}
