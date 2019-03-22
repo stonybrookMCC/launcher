@@ -115,7 +115,7 @@ function createWindow() {
 
 app.on('ready', () => {
     createWindow();
-    // autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdates();
 });
 
 autoUpdater.on('update-downloaded', () => {
