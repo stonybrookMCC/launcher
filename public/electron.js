@@ -23,7 +23,7 @@ const defaultSettings = {
         number: "1.12.2",
         type: "release"
     },
-    launcher_version: "1.5.0",
+    launcher_version: "1.5.1",
     authorization: null,
     memory: {
         max: "500",
