@@ -31,8 +31,8 @@ const defaultSettings = {
         override: false
     },
     endpoints: {
-        gist: "https://napstabot.club/launcher.json",
-        error: "https://discordapp.com/api/webhooks/558094269160882196/v5LiNUHlQJzmKt0voeDcgCP4BhBEZpDQOuicJ712p3fZa83_ORpGLo4qVjDomT3iYNMg"
+        gist: "",
+        error: ""
     }
 };
 
